@@ -1,16 +1,8 @@
 #include "openglwindow.h"
 
 /*
-20170812 22.48
-这个版本是新算法的尝试。
-新算法：
-	1.设置一个save_vertexes，保存上一次的trans_vertexes
-	2.只运行一次4.14语句
-还没实现新算法，但是发现新算法有问题：
-	1. 不知道如何结合模型的【旋转】和【缩放】
-	2.相机的坐标没有用了，因为直接靠投影来变换trans_vertexes
-
-因此，打算回到老算法：用累加角度的方式，将绕y轴旋转那部分，转换成法向量形式，看看行不行。
+20170812 23.48
+新算法已实现
 */
 
 int g_ratio = 5;
@@ -66,6 +58,8 @@ openglwindow::openglwindow(QWidget *parent)
 
 	drag_theta_x_ = 0.0f;
 	drag_theta_y_ = 0.0f;
+
+	is_view_mode_ = false;
 
 	startTimer(1000);    //设置间隔时间为1000ms，该函数返回值为1
 	//startTimer(3000);  //如果有多个定时器，第几个定时器的返回值就是几
@@ -257,6 +251,7 @@ void openglwindow::initCube(){
 		Vector3 v(cube_vertex[i][0],cube_vertex[i][1],cube_vertex[i][2]);
 		g_model.local_vertexes_.push_back(v);            //将所有顶点 保存至model的 局部坐标
 		g_model.trans_vertexes_.push_back(v+g_model.world_position_); //将所有顶点 保存至model的 透视坐标，----------trans_vertexes_ = 局部坐标 + 世界坐标
+		g_model.save_vertexes_.push_back(v+g_model.world_position_); //新增保存变量
 	}
 
 	// 模型空间旋转
@@ -313,14 +308,18 @@ void openglwindow::drawCube(){
 
 	Matrix model_transform = model_rotate_matrix * model_scale_matrix;  //定义旋转矩阵 + 缩放矩阵
 
-	//4.1.4 转换到世界坐标系
-	int index = 0;
-	for (auto &v : g_model.local_vertexes_){    //遍历model的 所有局部坐标 顶点
-		v = v * model_transform;       //模型【旋转】 + 【缩放】 所有局部坐标 顶点
-		//不【旋转】、不【缩放】，这一句就是 v = v
-		g_model.trans_vertexes_[index] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
-		//原来这里他妈的给我初始化了 trans_vertexes_ 2017.8.12 21.55
-		++index;
+	if(is_view_mode_ == false){
+		//4.1.4 转换到世界坐标系
+		int index = 0;
+		for (auto &v : g_model.local_vertexes_){    //遍历model的 所有局部坐标 顶点
+			v = v * model_transform;       //模型【旋转】 + 【缩放】 所有局部坐标 顶点
+			//不【旋转】、不【缩放】，这一句就是 v = v
+			g_model.trans_vertexes_[index] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
+			//原来这里他妈的给我初始化了 trans_vertexes_ 2017.8.12 21.55
+			++index;
+		}
+	}else{
+		g_model.trans_vertexes_ = g_model.save_vertexes_;   //恢复存档 —— 使用 保存变量
 	}
 
 	//法二：
@@ -398,6 +397,11 @@ void openglwindow::drawCube(){
 		g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
 		g_camera.view_transform_rotate(g_model.trans_vertexes_, 1, 0, 0, -g_camera.look_at_theta_.y_);  //绕x轴旋转
 	}
+
+
+	g_model.save_vertexes_ = g_model.trans_vertexes_;   //保存变量：保存该变换操作后的 trans_vertexes
+
+
 	//4.2.3 转换到相机坐标
 	//if(drag_theta_y_){
 	//	g_camera.view_transform_rotate(g_model.trans_vertexes_, 
@@ -433,6 +437,9 @@ void openglwindow::drawCube(){
 
 	//绘制线框模型
 	drawWireframeModel(g_model);
+	if(is_view_mode_ == false){
+		is_view_mode_ = true;
+	}
 }
 
 void openglwindow::drawWireframeModel(Model & model){

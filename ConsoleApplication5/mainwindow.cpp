@@ -57,25 +57,36 @@ void mainwindow::keyPressEvent(QKeyEvent *event){
 
 	case Qt::Key_I: ui.widget->drag_theta_y_ = 1; break;
 	case Qt::Key_K: ui.widget->drag_theta_y_ = -1; break;
-	case Qt::Key_1: {
-		if(ui.widget->can_x_ == false){
-			ui.widget->can_x_ = true;
-		}else{
-			ui.widget->can_x_ = false;
+	case Qt::Key_1: 
+		{
+			if(ui.widget->can_x_ == false){
+				ui.widget->can_x_ = true;
+			}else{
+				ui.widget->can_x_ = false;
+			}
+			cout<<"can x ="<<ui.widget->can_x_<<endl;
 		}
-		cout<<"can x ="<<ui.widget->can_x_<<endl;
-					}
-					break;
-	case Qt::Key_0: {
-		if(ui.widget->can_y_ == false){
-			ui.widget->can_y_ = true;
-		}else{
-			ui.widget->can_y_ = false;
+		break;
+	case Qt::Key_0: 
+		{
+			if(ui.widget->can_y_ == false){
+				ui.widget->can_y_ = true;
+			}else{
+				ui.widget->can_y_ = false;
+			}
+			cout<<"can y ="<<ui.widget->can_y_<<endl;
 		}
-		cout<<"can y ="<<ui.widget->can_y_<<endl;
-
-					}
-					break;
+		break;
+	case Qt::Key_3: 
+		{
+			if(ui.widget->is_view_mode_ == false){
+				ui.widget->is_view_mode_ = true;
+			}else{
+				ui.widget->is_view_mode_ = false;
+			}
+			cout<<"is_view_mode_ ="<<ui.widget->is_view_mode_<<endl;
+		}
+		break;
 	default:	break;
 	}
 
