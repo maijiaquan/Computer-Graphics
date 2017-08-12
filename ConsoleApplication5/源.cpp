@@ -9,6 +9,11 @@ int main(){
 		if(i < 10){
 			std::cout<<"hi"<<std::endl;
 
+			///
+			///
+			//
+			//
+			//				/
 
 		}
 	}
