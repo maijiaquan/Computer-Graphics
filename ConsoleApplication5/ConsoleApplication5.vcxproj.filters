@@ -18,7 +18,7 @@
     <ClCompile Include="源.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\QTOpenGLTest\QTOpenGLTest\openglwindow.cpp">
+    <ClCompile Include="mainwindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
