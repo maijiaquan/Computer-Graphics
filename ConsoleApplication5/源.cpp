@@ -253,6 +253,7 @@ void openglwindow::paintGL(){
 
 
 
+
 	//glutSwapBuffers();
 
 
