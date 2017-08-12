@@ -46,17 +46,17 @@ void mainwindow::keyPressEvent(QKeyEvent *event){
 		//case Qt::Key_L: ui.widget->camera_rotateX = -1; break;
 
 
-		case Qt::Key_J: ui.widget->drag_theta_x_ += 1; break;
-		case Qt::Key_L: ui.widget->drag_theta_x_ -= 1; break;
+		//case Qt::Key_J: ui.widget->drag_theta_x_ += 1; break;
+		//case Qt::Key_L: ui.widget->drag_theta_x_ -= 1; break;
 
-		case Qt::Key_I: ui.widget->drag_theta_y_ += 1; break;
-		case Qt::Key_K: ui.widget->drag_theta_y_ -= 1; break;
+		//case Qt::Key_I: ui.widget->drag_theta_y_ += 1; break;
+		//case Qt::Key_K: ui.widget->drag_theta_y_ -= 1; break;
 
-	//case Qt::Key_J: ui.widget->drag_theta_x_ = 1; break;
-	//case Qt::Key_L: ui.widget->drag_theta_x_ = -1; break;
+	case Qt::Key_J: ui.widget->drag_theta_x_ = 1; break;
+	case Qt::Key_L: ui.widget->drag_theta_x_ = -1; break;
 
-	//case Qt::Key_I: ui.widget->drag_theta_y_ = 1; break;
-	//case Qt::Key_K: ui.widget->drag_theta_y_ = -1; break;
+	case Qt::Key_I: ui.widget->drag_theta_y_ = 1; break;
+	case Qt::Key_K: ui.widget->drag_theta_y_ = -1; break;
 	case Qt::Key_1: {
 		if(ui.widget->can_x_ == false){
 			ui.widget->can_x_ = true;
