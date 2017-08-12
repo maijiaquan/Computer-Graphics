@@ -339,27 +339,6 @@ void openglwindow::drawCube(){
 	}
 
 
-	//法一：
-	//camera_move_matrix.identify();
-	////4.2.2 相机【旋转】  -----> 联系键盘事件
-	//g_camera.set_lookAt(Vector3(g_camera_altered.rotateX, g_camera_altered.rotateY, 0)); //look_at_theta_ + 旋转向量，仅限 x 和 y坐标
-
-	//float dx = g_camera.dis_camera_model_ * Sin(g_camera.total_rotate_theta_x_) - g_camera.last_dx;
-	//float dz = g_camera.dis_camera_model_ * (1 - Cos(g_camera.total_rotate_theta_y_)) - g_camera.last_dz;
-
-	//g_camera.last_dx = dx;
-	//g_camera.last_dz = dz;
-	//
-	//camera_move_matrix.setTranslation(Vector3(dx, 0, dz));
-	//	g_camera.set_position(camera_move_matrix);  //	//先【旋转】，后【平移】，从而让相机绕着物体旋转
-
-	//cout<<"Sin(g_camera_altered.rotateX) = "<<Sin(g_camera_altered.rotateX)<<endl;
-	//cout<<"Cos(g_camera_altered.rotateX)"<<Cos(g_camera_altered.rotateX)<<endl;
-
-
-	//就这里，不知道为什么距离会发生变化，应该是公式问题  2017.8.9  19：31
-	//cout<<"drag_theta_x_"<<drag_theta_x_<<endl;
-	//cout<<"drag_theta_y_"<<drag_theta_y_<<endl;
 
 	//法二：
 	//重置世界坐标
