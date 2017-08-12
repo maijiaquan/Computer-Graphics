@@ -347,10 +347,10 @@ void openglwindow::drawCube(){
 	g_camera.world_position_.z_ = 0;
 	//重置观察角度
 	g_camera.look_at_theta_ = Vector3(0,0,0);
-	
+
 	//g_camera.view_transform(g_model.trans_vertexes_);  //重新改造 model的 trans_vertexes_ 
 
-	g_camera.set_lookAt(Vector3(drag_theta_x_, drag_theta_y_, 0)); //look_at_theta_ + 旋转向量，仅限 x 和 y坐标
+	g_camera.set_lookAt(Vector3(drag_theta_x_, drag_theta_y_, 0)); //改变camera 的 look_at_theta_
 
 
 	//	//4.2.1 相机【移动】  -----> 联系键盘事件
@@ -362,47 +362,66 @@ void openglwindow::drawCube(){
 	//【平移】
 	float dx, dy, dz;
 	//【平移】——【绕y轴】
-	Matrix camera_translation_matrix_x;
-	camera_translation_matrix_x.identify();
-	dx = g_camera.dis_camera_model_ * Sin(drag_theta_x_);
-	dz = g_camera.dis_camera_model_ * (1 - Cos(drag_theta_x_));
-	camera_translation_matrix_x.setTranslation(Vector3(dx, 0, dz));
-	g_camera.set_position(camera_translation_matrix_x);   //【平移】
+	if(can_x_){
+		Matrix camera_translation_matrix_x;
+		camera_translation_matrix_x.identify();
+		dx = g_camera.dis_camera_model_ * Sin(drag_theta_x_);
+		dz = g_camera.dis_camera_model_ * (1 - Cos(drag_theta_x_));
+		camera_translation_matrix_x.setTranslation(Vector3(dx, 0, dz));
+		g_camera.set_position(camera_translation_matrix_x);   //【平移】
+
+		g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
+		g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 1, 0, g_camera.look_at_theta_.x_);  //先绕y轴旋转
+	}
 
 	//【平移】 —— 【绕x轴】
 	//第二次【平移】
-
 	//Vector3 normal_vector;
-	if(drag_theta_y_){
+	//if(drag_theta_y_){
+	//	Matrix camera_translation_matrix_y;
+	//	camera_translation_matrix_y.identify();
+	//	dy = g_camera.dis_camera_model_ * Sin(drag_theta_y_);
+	//	float length = g_camera.dis_camera_model_ * Cos(drag_theta_y_); 
+	//	cout<<"length =	"<<length<<endl;
+	//	float gamma = g_camera.dis_camera_model_ - length;
+	//	cout<<"gamma = "<<gamma<<endl;
+	//	dx = - gamma * Sin(drag_theta_x_);
+	//	cout<<"dx = "<<dx<<endl;
+	//	dz = gamma * Cos(drag_theta_x_);
+	//	cout<<"dy = "<<dy<<endl;
+	//	camera_translation_matrix_y.setTranslation(Vector3(dx,dy,dz));
+	//	g_camera.set_position(camera_translation_matrix_y);
+	//}
+	g_camera.world_position_.x_ = 0;	
+	g_camera.world_position_.y_ = 0;
+	g_camera.world_position_.z_ = 0;
+	//重置观察角度
+	//g_camera.look_at_theta_ = Vector3(0,0,0);
+
+
+	if(can_y_){
 		Matrix camera_translation_matrix_y;
 		camera_translation_matrix_y.identify();
 		dy = g_camera.dis_camera_model_ * Sin(drag_theta_y_);
-		float length = g_camera.dis_camera_model_ * Cos(drag_theta_y_); 
-		cout<<"length =	"<<length<<endl;
-		float gamma = g_camera.dis_camera_model_ - length;
-		cout<<"gamma = "<<gamma<<endl;
-		dx = - gamma * Sin(drag_theta_x_);
-		cout<<"dx = "<<dx<<endl;
-		dz = gamma * Cos(drag_theta_x_);
-		cout<<"dy = "<<dy<<endl;
-		camera_translation_matrix_y.setTranslation(Vector3(dx,dy,dz));
-		g_camera.set_position(camera_translation_matrix_y);
+		dz = g_camera.dis_camera_model_ * (1 - Cos(drag_theta_y_));
+		camera_translation_matrix_y.setTranslation(Vector3(0, dy, dz));
+		g_camera.set_position(camera_translation_matrix_y);   //【平移】
+
+
+		//为啥dis会改变啊？？？950412
+
+		g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
+		g_camera.view_transform_rotate(g_model.trans_vertexes_, 1, 0, 0, -g_camera.look_at_theta_.y_);  //绕x轴旋转
 	}
-
-
-
 	//4.2.3 转换到相机坐标
-	//g_camera.view_transform(g_model.trans_vertexes_);  //重新改造 model的 trans_vertexes_ 
-	g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
-	g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 1, 0, g_camera.look_at_theta_.x_);  //先绕y轴旋转
-	if(drag_theta_y_){
-		g_camera.view_transform_rotate(g_model.trans_vertexes_, 
-			//-normal_vector.x_, 
-			//-normal_vector.y_, 
-			//-normal_vector.z_,
-			1,0,0,
-			-drag_theta_y_); 
-	}
+	//if(drag_theta_y_){
+	//	g_camera.view_transform_rotate(g_model.trans_vertexes_, 
+	//		//-normal_vector.x_, 
+	//		//-normal_vector.y_, 
+	//		//-normal_vector.z_,
+	//		1,0,0,
+	//		-drag_theta_y_); 
+	//}
 
 	// 4.3.3 透视除法
 	for (int i=0;i<g_model.trans_vertexes_.size();++i){
