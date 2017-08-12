@@ -253,7 +253,6 @@ void openglwindow::paintGL(){
 
 
 
-
 	//glutSwapBuffers();
 
 
@@ -331,16 +330,13 @@ void openglwindow::drawCube(){
 	Matrix model_transform = model_rotate_matrix * model_scale_matrix;  //定义旋转矩阵 + 缩放矩阵
 
 
-
-
-
-
-
-
-
-
-
-
+	//4.1.4 转换到世界坐标系
+	int index = 0;
+	for (auto &v : g_model.local_vertexes_){    //遍历model的 所有局部坐标 顶点
+		v = v * model_transform;       //模型【旋转】 + 【缩放】 所有局部坐标 顶点
+		g_model.trans_vertexes_[index] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
+		++index;
+	}
 
 
 	//法一：
@@ -395,14 +391,6 @@ void openglwindow::drawCube(){
 	g_camera.set_position(camera_translation_matrix_x);   //【平移】
 
 	//【平移】 —— 【绕x轴】
-	//Matrix camera_translation_matrix_y;
-	//camera_translation_matrix_y.identify();
-	//dy = g_camera.dis_camera_model_ * Sin(-drag_theta_y_);
-	//dz = g_camera.dis_camera_model_ * (1 - Cos(-drag_theta_y_));
-	//camera_translation_matrix_y.setTranslation(Vector3(0, dy, dz));
-	//g_camera.set_position(camera_translation_matrix_y);   
-
-	//α = drag_theta_y_
 	//第二次【平移】
 
 	//Vector3 normal_vector;
@@ -420,34 +408,9 @@ void openglwindow::drawCube(){
 		cout<<"dy = "<<dy<<endl;
 		camera_translation_matrix_y.setTranslation(Vector3(dx,dy,dz));
 		g_camera.set_position(camera_translation_matrix_y);
-
-		////计算法向量
-		//normal_vector.x_ = g_camera.world_position_.y_*g_camera.world_position_.z_;
-		//normal_vector.y_ = 0;
-		//normal_vector.z_ = -g_camera.world_position_.x_ * g_camera.world_position_.y_;
-		////转换成单位向量
-		//float normal_vector_norm = sqrt(normal_vector.x_*normal_vector.x_ 
-		//	+ normal_vector.y_*normal_vector.y_
-		//	+ normal_vector.z_*normal_vector.z_);
-		//normal_vector.x_ /= normal_vector_norm;  
-		//normal_vector.y_ /= normal_vector_norm;  
-		//normal_vector.z_ /= normal_vector_norm;  
-
-
-		//cout<<"nv x = "<<normal_vector.x_<<endl;
-		//cout<<"nv y = "<<normal_vector.y_<<endl;
-		//cout<<"nv z = "<<normal_vector.z_<<endl;
 	}
 
 
-
-	//4.1.4 转换到世界坐标系
-	int index = 0;
-	for (auto &v : g_model.local_vertexes_){    //遍历model的 所有局部坐标 顶点
-		v = v * model_transform;       //模型【旋转】 + 【缩放】 所有局部坐标 顶点
-		g_model.trans_vertexes_[index] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
-		++index;
-	}
 
 	//4.2.3 转换到相机坐标
 	//g_camera.view_transform(g_model.trans_vertexes_);  //重新改造 model的 trans_vertexes_ 
@@ -461,10 +424,6 @@ void openglwindow::drawCube(){
 			1,0,0,
 			-drag_theta_y_); 
 	}
-
-	//
-
-
 
 	// 4.3.3 透视除法
 	for (int i=0;i<g_model.trans_vertexes_.size();++i){
@@ -491,10 +450,7 @@ void openglwindow::drawCube(){
 
 	//绘制线框模型
 	drawWireframeModel(g_model);
-
-
 }
-
 
 void openglwindow::drawWireframeModel(Model & model){
 	for (int index=0; index<model.poly_indices_.size(); ++index){  //遍历所有三角形
@@ -512,6 +468,5 @@ void openglwindow::drawWireframeModel(Model & model){
 		//cout<<"v1 x = "<<v1.x_<<" v1 y = "<< v1.y_<<endl;
 		//cout<<"v2 x = "<<v2.x_<<" v2 y = "<< v2.y_<<endl;
 		//cout<<"v3 x = "<<v3.x_<<" v3 y = "<< v3.y_<<endl;
-
 	}
 }
