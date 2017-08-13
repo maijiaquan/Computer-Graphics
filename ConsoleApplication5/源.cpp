@@ -14,6 +14,9 @@ int g_mouse_start_press_y = 0;
 int g_mouse_curr_x = 0;
 int g_mouse_curr_y = 0;
 
+int g_mouse_last_x = 0;
+int g_mouse_last_y = 0;
+
 bool g_is_mouse_press = false;
 
 Camera &g_camera = Camera::instance();
@@ -80,16 +83,29 @@ void openglwindow::timerEvent(QTimerEvent *t){//定时器时间
 		g_camera.world_position_.z_)<<endl;
 }
 
-//鼠标事件
+//鼠标事件：移动
 void openglwindow::mouseMoveEvent(QMouseEvent *e){
 	g_mouse_curr_x = e->x();
 	g_mouse_curr_y = e->y();
 
+	int mouse_change_x = g_mouse_curr_x - g_mouse_last_x;
+	int mouse_change_y = g_mouse_curr_y - g_mouse_last_y;
+	 
+
+	g_mouse_last_x = g_mouse_curr_x;
+	g_mouse_last_y = g_mouse_curr_y;
 	if(g_is_mouse_press){
 		update();
 	}
+	cout<<"mouse curr x = "<<g_mouse_curr_x<<"		mouse curr y = "<<g_mouse_curr_y<<endl;
+	cout<<"mouse change x = "<<mouse_change_x<<"mouse change y = "<<mouse_change_y<<endl;
+
+	drag_theta_x_ =  -mouse_change_x;
+	drag_theta_y_ = mouse_change_y;
+
 }
 
+//鼠标事件：按住
 void openglwindow::mousePressEvent(QMouseEvent *event){
 	cout<<"press!!"<<endl;
 	if(g_is_mouse_press == false){
@@ -100,6 +116,7 @@ void openglwindow::mousePressEvent(QMouseEvent *event){
 	update();
 }
 
+//鼠标事件：释放
 void openglwindow::mouseReleaseEvent(QMouseEvent *event){
 	cout<<"Release!!"<<endl;
 	g_is_mouse_press = false;
@@ -434,6 +451,7 @@ void openglwindow::drawCube(){
 		g_model.trans_vertexes_[i].x_ += half_width;    //使得模型位于屏幕正中间
 		g_model.trans_vertexes_[i].y_ = half_height - g_model.trans_vertexes_[i].y_; //使得模型位于屏幕正中间
 	}
+
 
 	//绘制线框模型
 	drawWireframeModel(g_model);
