@@ -89,6 +89,8 @@ public:
 	bool is_view_mode_;   //浏览模式
 	bool is_ctrl;       //ctrl键是否按下
 
+	Matrix save_matrix;
+
 	//所有变换属性初始化
 	void transform_attribute_init();
 	

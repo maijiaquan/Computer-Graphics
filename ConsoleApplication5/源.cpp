@@ -1,9 +1,16 @@
 #include "openglwindow.h"
 
 /*
-20170813 16.04
-1. 取消所有保存变量 save_vertexes_ 的操作 
-2. 恢复 drawcube开头那段 他妈的 【旋转】、【缩放】
+20170813 16.33
+新算法与 物体的【旋转】、【缩放】、【平移】相结合
+原理：引入保存矩阵
+
+主要修改：
+1. 定义该矩阵
+2. 在合适的地方初始化 该矩阵 ——openglwindow的构造函数
+3. 重载 camera的旋转 和 平移函数，把保存矩阵 传进去再带出来
+4. 将原始函数修改成重载后的版本
+5.在 “他妈的” 那里，再乘上 保存矩阵
 */
 
 int g_ratio = 5;
@@ -69,6 +76,7 @@ openglwindow::openglwindow(QWidget *parent)
 
 	startTimer(1000);    //设置间隔时间为1000ms，该函数返回值为1
 	//startTimer(3000);  //如果有多个定时器，第几个定时器的返回值就是几
+	save_matrix.identify();    //初始化 保存矩阵
 }
 
 openglwindow::~openglwindow(){ }
@@ -312,7 +320,7 @@ void openglwindow::initCube(){
 
 
 void openglwindow::drawCube(){
-	//4.1.1 模型空间平移
+	//4.1.1 模型空间【平移】
 	Matrix model_move_matrix;    //定义平移矩阵
 	model_move_matrix.identify();
 	model_move_matrix.setTranslation(Vector3(0,0,g_model_altered.move_z));    //-----> 联系键盘事件
@@ -338,6 +346,9 @@ void openglwindow::drawCube(){
 		++index;
 	}
 
+	for (auto &v : g_model.trans_vertexes_){
+		v *= save_matrix;
+	}
 
 	//重置世界坐标
 	g_camera.world_position_.x_ = 0;	
@@ -350,7 +361,9 @@ void openglwindow::drawCube(){
 
 	if(is_ctrl){    //如果是 绕z轴旋转模式的话
 		//绕z轴旋转代码   20170813  11.45
-		g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 0, 1, -drag_theta_y_);
+		//g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 0, 1, -drag_theta_y_);
+		g_camera.view_transform_rotate(g_model.trans_vertexes_,save_matrix, 0, 0, 1, -drag_theta_y_);   //使用 有保存矩阵 的重载版本
+
 	}
 	else{
 		//【平移】——【绕y轴】
@@ -362,8 +375,12 @@ void openglwindow::drawCube(){
 			camera_translation_matrix_x.setTranslation(Vector3(dx, 0, dz));
 			g_camera.set_position(camera_translation_matrix_x);   //【平移】相机的世界坐标
 
-			g_camera.view_transform_translation(g_model.trans_vertexes_);  // 将相机的世界坐标 “反向” 平移到 trans_vertexes_
-			g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 1, 0, g_camera.look_at_theta_.x_);  //先绕y轴旋转
+			//g_camera.view_transform_translation(g_model.trans_vertexes_);  // 将相机的世界坐标 “反向” 平移到 trans_vertexes_
+			//g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 1, 0, g_camera.look_at_theta_.x_);  //先绕y轴旋转
+
+			g_camera.view_transform_translation(g_model.trans_vertexes_, save_matrix);  //使用 有保存矩阵 的重载版本
+			g_camera.view_transform_rotate(g_model.trans_vertexes_, save_matrix, 0, 1, 0, g_camera.look_at_theta_.x_);   //使用 有保存矩阵 的重载版本
+
 		}
 
 		//重置世界坐标
@@ -380,8 +397,11 @@ void openglwindow::drawCube(){
 			camera_translation_matrix_y.setTranslation(Vector3(0, dy, dz));
 			g_camera.set_position(camera_translation_matrix_y);   //【平移】
 
-			g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
-			g_camera.view_transform_rotate(g_model.trans_vertexes_, 1, 0, 0, -g_camera.look_at_theta_.y_);  //绕x轴旋转
+			//g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
+			//g_camera.view_transform_rotate(g_model.trans_vertexes_, 1, 0, 0, -g_camera.look_at_theta_.y_);  //绕x轴旋转
+
+			g_camera.view_transform_translation(g_model.trans_vertexes_, save_matrix);  //使用 有保存矩阵 的重载版本
+			g_camera.view_transform_rotate(g_model.trans_vertexes_, save_matrix, 1, 0, 0, -g_camera.look_at_theta_.y_);  //使用 有保存矩阵 的重载版本
 		}
 	}
 
