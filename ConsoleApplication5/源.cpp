@@ -1,10 +1,9 @@
 #include "openglwindow.h"
 
 /*
-20170813 12.13
-1.加入z轴旋转鼠标事件：
-按住ctrl切换到 绕z轴旋转模式，不过有缺陷——仅仅根据鼠标的y轴偏移量 进行旋转
-2.删除drawcube部分注释
+20170813 16.04
+1. 取消所有保存变量 save_vertexes_ 的操作 
+2. 恢复 drawcube开头那段 他妈的 【旋转】、【缩放】
 */
 
 int g_ratio = 5;
@@ -272,7 +271,7 @@ void openglwindow::initCube(){
 		Vector3 v(cube_vertex[i][0],cube_vertex[i][1],cube_vertex[i][2]);
 		g_model.local_vertexes_.push_back(v);            //将所有顶点 保存至model的 局部坐标
 		g_model.trans_vertexes_.push_back(v+g_model.world_position_); //将所有顶点 保存至model的 透视坐标，----------trans_vertexes_ = 局部坐标 + 世界坐标
-		g_model.save_vertexes_.push_back(v+g_model.world_position_); //新增保存变量
+		//g_model.save_vertexes_.push_back(v+g_model.world_position_); //新增保存变量
 	}
 
 	// 模型空间旋转
@@ -329,19 +328,16 @@ void openglwindow::drawCube(){
 
 	Matrix model_transform = model_rotate_matrix * model_scale_matrix;  //定义旋转矩阵 + 缩放矩阵
 
-	if(is_view_mode_ == false){
-		//4.1.4 转换到世界坐标系
-		int index = 0;
-		for (auto &v : g_model.local_vertexes_){    //遍历model的 所有局部坐标 顶点
-			v = v * model_transform;       //模型【旋转】 + 【缩放】 所有局部坐标 顶点
-			//不【旋转】、不【缩放】，这一句就是 v = v
-			g_model.trans_vertexes_[index] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
-			//原来这里他妈的给我初始化了 trans_vertexes_ 2017.8.12 21.55
-			++index;
-		}
-	}else{
-		g_model.trans_vertexes_ = g_model.save_vertexes_;   //恢复存档 —— 使用 保存变量
+	//4.1.4 转换到世界坐标系
+	int index = 0;
+	for (auto &v : g_model.local_vertexes_){    //遍历model的 所有局部坐标 顶点
+		v = v * model_transform;       //模型【旋转】 + 【缩放】 所有局部坐标 顶点
+		//不【旋转】、不【缩放】，这一句就是 v = v
+		g_model.trans_vertexes_[index] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
+		//原来这里他妈的给我初始化了 trans_vertexes_ 2017.8.12 21.55
+		++index;
 	}
+
 
 	//重置世界坐标
 	g_camera.world_position_.x_ = 0;	
@@ -390,7 +386,7 @@ void openglwindow::drawCube(){
 	}
 
 
-	g_model.save_vertexes_ = g_model.trans_vertexes_;   //保存变量：保存该变换操作后的 trans_vertexes
+	//g_model.save_vertexes_ = g_model.trans_vertexes_;   //保存变量：保存该变换操作后的 trans_vertexes
 
 	// 4.3.3 透视除法
 	for (int i=0;i<g_model.trans_vertexes_.size();++i){
