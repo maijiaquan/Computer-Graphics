@@ -57,6 +57,9 @@ void mainwindow::keyPressEvent(QKeyEvent *event){
 
 	case Qt::Key_I: ui.widget->drag_theta_y_ = 1; break;
 	case Qt::Key_K: ui.widget->drag_theta_y_ = -1; break;
+
+	case Qt::Key_M: ui.widget->drag_theta_z_ = 1; break;  	//ÈÆzÖáÐý×ª½Ç¶ÈÐÞ¸Ä   20170813  11.45
+	case Qt::Key_N: ui.widget->drag_theta_z_ = -1; break;
 	case Qt::Key_1: 
 		{
 			if(ui.widget->can_x_ == false){

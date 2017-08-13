@@ -61,6 +61,7 @@ openglwindow::openglwindow(QWidget *parent)
 
 	drag_theta_x_ = 0.0f;
 	drag_theta_y_ = 0.0f;
+	drag_theta_z_ = 0.0f;
 
 	is_view_mode_ = false;
 
@@ -151,7 +152,7 @@ void openglwindow::transform_attribute_init(){
 
 	drag_theta_x_ = 0.0f;
 	drag_theta_y_ = 0.0f;
-
+	drag_theta_z_ = 0.0f;
 
 }
 
@@ -352,7 +353,8 @@ void openglwindow::drawCube(){
 
 	//g_camera.set_lookAt(Vector3(drag_theta_x_, drag_theta_y_, 0)); //改变camera 的 look_at_theta_
 	
-	g_camera.look_at_theta_ = Vector3(drag_theta_x_, drag_theta_y_,0);  //修改 相机 角度
+	//g_camera.look_at_theta_ = Vector3(drag_theta_x_, drag_theta_y_,0);  //修改 相机 角度
+	g_camera.look_at_theta_ = Vector3(drag_theta_x_, drag_theta_y_,drag_theta_z_);  //修改 相机 角度  加上绕着 z 轴旋转 20170813 11.44
 
 
 	//	//4.2.1 相机【移动】  -----> 联系键盘事件
@@ -416,6 +418,11 @@ void openglwindow::drawCube(){
 	}
 
 
+
+
+	//绕z轴旋转代码   20170813  11.45
+	g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 0, 1, drag_theta_z_);
+
 	g_model.save_vertexes_ = g_model.trans_vertexes_;   //保存变量：保存该变换操作后的 trans_vertexes
 
 
@@ -451,7 +458,6 @@ void openglwindow::drawCube(){
 		g_model.trans_vertexes_[i].x_ += half_width;    //使得模型位于屏幕正中间
 		g_model.trans_vertexes_[i].y_ = half_height - g_model.trans_vertexes_[i].y_; //使得模型位于屏幕正中间
 	}
-
 
 	//绘制线框模型
 	drawWireframeModel(g_model);

@@ -81,6 +81,7 @@ public:
 
 	float drag_theta_x_;   //表示鼠标拖拽后，相机旋转的角度 x轴
 	float drag_theta_y_;   //表示鼠标拖拽后，相机旋转的角度 y轴
+	float drag_theta_z_;   //表示鼠标拖拽后，相机旋转的角度 z轴
 
 	bool can_x_;
 	bool can_y_;
