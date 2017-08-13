@@ -1,8 +1,10 @@
 #include "openglwindow.h"
 
 /*
-20170812 23.48
-新算法已实现
+20170813 12.13
+1.加入z轴旋转鼠标事件：
+按住ctrl切换到 绕z轴旋转模式，不过有缺陷——仅仅根据鼠标的y轴偏移量 进行旋转
+2.删除drawcube部分注释
 */
 
 int g_ratio = 5;
@@ -64,6 +66,7 @@ openglwindow::openglwindow(QWidget *parent)
 	drag_theta_z_ = 0.0f;
 
 	is_view_mode_ = false;
+	is_ctrl = false;
 
 	startTimer(1000);    //设置间隔时间为1000ms，该函数返回值为1
 	//startTimer(3000);  //如果有多个定时器，第几个定时器的返回值就是几
@@ -91,7 +94,7 @@ void openglwindow::mouseMoveEvent(QMouseEvent *e){
 
 	int mouse_change_x = g_mouse_curr_x - g_mouse_last_x;
 	int mouse_change_y = g_mouse_curr_y - g_mouse_last_y;
-	 
+
 
 	g_mouse_last_x = g_mouse_curr_x;
 	g_mouse_last_y = g_mouse_curr_y;
@@ -340,101 +343,54 @@ void openglwindow::drawCube(){
 		g_model.trans_vertexes_ = g_model.save_vertexes_;   //恢复存档 —— 使用 保存变量
 	}
 
-	//法二：
 	//重置世界坐标
 	g_camera.world_position_.x_ = 0;	
 	g_camera.world_position_.y_ = 0;
 	g_camera.world_position_.z_ = 0;
-	//重置观察角度
 
-	//g_camera.look_at_theta_ = Vector3(0,0,0);
-
-	//g_camera.view_transform(g_model.trans_vertexes_);  //重新改造 model的 trans_vertexes_ 
-
-	//g_camera.set_lookAt(Vector3(drag_theta_x_, drag_theta_y_, 0)); //改变camera 的 look_at_theta_
-	
-	//g_camera.look_at_theta_ = Vector3(drag_theta_x_, drag_theta_y_,0);  //修改 相机 角度
 	g_camera.look_at_theta_ = Vector3(drag_theta_x_, drag_theta_y_,drag_theta_z_);  //修改 相机 角度  加上绕着 z 轴旋转 20170813 11.44
 
-
-	//	//4.2.1 相机【移动】  -----> 联系键盘事件
-	//Matrix camera_move_matrix;   //定义 平移矩阵
-	//camera_move_matrix.identify();
-	//camera_move_matrix.setTranslation(Vector3(g_camera_altered.move_x,g_camera_altered.move_y,g_camera_altered.move_z));
-	//g_camera.set_position(camera_move_matrix);  //乘以 平移矩阵
-
-	//【平移】
 	float dx, dy, dz;
-	//【平移】——【绕y轴】
-	if(can_x_){
-		Matrix camera_translation_matrix_x;
-		camera_translation_matrix_x.identify();
-		dx = g_camera.dis_camera_model_ * Sin(drag_theta_x_);
-		dz = g_camera.dis_camera_model_ * (1 - Cos(drag_theta_x_));
-		camera_translation_matrix_x.setTranslation(Vector3(dx, 0, dz));
-		g_camera.set_position(camera_translation_matrix_x);   //【平移】相机的世界坐标
-		 
-		g_camera.view_transform_translation(g_model.trans_vertexes_);  // 将相机的世界坐标 “反向” 平移到 trans_vertexes_
-		g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 1, 0, g_camera.look_at_theta_.x_);  //先绕y轴旋转
+
+	if(is_ctrl){    //如果是 绕z轴旋转模式的话
+		//绕z轴旋转代码   20170813  11.45
+		g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 0, 1, -drag_theta_y_);
+	}
+	else{
+		//【平移】——【绕y轴】
+		if(can_x_){
+			Matrix camera_translation_matrix_x;
+			camera_translation_matrix_x.identify();
+			dx = g_camera.dis_camera_model_ * Sin(drag_theta_x_);
+			dz = g_camera.dis_camera_model_ * (1 - Cos(drag_theta_x_));
+			camera_translation_matrix_x.setTranslation(Vector3(dx, 0, dz));
+			g_camera.set_position(camera_translation_matrix_x);   //【平移】相机的世界坐标
+
+			g_camera.view_transform_translation(g_model.trans_vertexes_);  // 将相机的世界坐标 “反向” 平移到 trans_vertexes_
+			g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 1, 0, g_camera.look_at_theta_.x_);  //先绕y轴旋转
+		}
+
+		//重置世界坐标
+		g_camera.world_position_.x_ = 0;	
+		g_camera.world_position_.y_ = 0;
+		g_camera.world_position_.z_ = 0;
+
+		//【平移】 —— 【绕x轴】
+		if(can_y_){
+			Matrix camera_translation_matrix_y;
+			camera_translation_matrix_y.identify();
+			dy = g_camera.dis_camera_model_ * Sin(drag_theta_y_);
+			dz = g_camera.dis_camera_model_ * (1 - Cos(drag_theta_y_));
+			camera_translation_matrix_y.setTranslation(Vector3(0, dy, dz));
+			g_camera.set_position(camera_translation_matrix_y);   //【平移】
+
+			g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
+			g_camera.view_transform_rotate(g_model.trans_vertexes_, 1, 0, 0, -g_camera.look_at_theta_.y_);  //绕x轴旋转
+		}
 	}
 
-	//【平移】 —— 【绕x轴】
-	//第二次【平移】
-	//Vector3 normal_vector;
-	//if(drag_theta_y_){
-	//	Matrix camera_translation_matrix_y;
-	//	camera_translation_matrix_y.identify();
-	//	dy = g_camera.dis_camera_model_ * Sin(drag_theta_y_);
-	//	float length = g_camera.dis_camera_model_ * Cos(drag_theta_y_); 
-	//	cout<<"length =	"<<length<<endl;
-	//	float gamma = g_camera.dis_camera_model_ - length;
-	//	cout<<"gamma = "<<gamma<<endl;
-	//	dx = - gamma * Sin(drag_theta_x_);
-	//	cout<<"dx = "<<dx<<endl;
-	//	dz = gamma * Cos(drag_theta_x_);
-	//	cout<<"dy = "<<dy<<endl;
-	//	camera_translation_matrix_y.setTranslation(Vector3(dx,dy,dz));
-	//	g_camera.set_position(camera_translation_matrix_y);
-	//}
-	g_camera.world_position_.x_ = 0;	
-	g_camera.world_position_.y_ = 0;
-	g_camera.world_position_.z_ = 0;
-
-	//重置观察角度
-	//g_camera.look_at_theta_ = Vector3(0,0,0);
-	//g_camera.look_at_theta_ = Vector3(drag_theta_x_, drag_theta_y_,0);
-
-
-	if(can_y_){
-		Matrix camera_translation_matrix_y;
-		camera_translation_matrix_y.identify();
-		dy = g_camera.dis_camera_model_ * Sin(drag_theta_y_);
-		dz = g_camera.dis_camera_model_ * (1 - Cos(drag_theta_y_));
-		camera_translation_matrix_y.setTranslation(Vector3(0, dy, dz));
-		g_camera.set_position(camera_translation_matrix_y);   //【平移】
-
-		g_camera.view_transform_translation(g_model.trans_vertexes_);  //【平移】一次
-		g_camera.view_transform_rotate(g_model.trans_vertexes_, 1, 0, 0, -g_camera.look_at_theta_.y_);  //绕x轴旋转
-	}
-
-
-
-
-	//绕z轴旋转代码   20170813  11.45
-	g_camera.view_transform_rotate(g_model.trans_vertexes_, 0, 0, 1, drag_theta_z_);
 
 	g_model.save_vertexes_ = g_model.trans_vertexes_;   //保存变量：保存该变换操作后的 trans_vertexes
-
-
-	//4.2.3 转换到相机坐标
-	//if(drag_theta_y_){
-	//	g_camera.view_transform_rotate(g_model.trans_vertexes_, 
-	//		//-normal_vector.x_, 
-	//		//-normal_vector.y_, 
-	//		//-normal_vector.z_,
-	//		1,0,0,
-	//		-drag_theta_y_); 
-	//}
 
 	// 4.3.3 透视除法
 	for (int i=0;i<g_model.trans_vertexes_.size();++i){
@@ -451,8 +407,6 @@ void openglwindow::drawCube(){
 	int half_width = windowWidth_/2;
 	int half_height = windowHeight_/2;
 	for (int i=0;i<g_model.trans_vertexes_.size();++i){
-		//cout<<"v1 x = "<<g_model.trans_vertexes_[i].x_<<" v1 y = "<<g_model.trans_vertexes_[i].y_<<endl;
-
 		g_model.trans_vertexes_[i].x_ *= half_width;    //按比例放大
 		g_model.trans_vertexes_[i].y_ *= half_height;   //按比例放大
 		g_model.trans_vertexes_[i].x_ += half_width;    //使得模型位于屏幕正中间

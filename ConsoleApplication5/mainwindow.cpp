@@ -15,10 +15,25 @@ mainwindow::~mainwindow()
 }
 
 
+//键盘释放操作
+void mainwindow::keyReleaseEvent(QKeyEvent *event){
+	int keyValue = event->key();
+	switch (keyValue){
+
+	case Qt::Key_Control: 
+		{
+			ui.widget->is_ctrl = false;
+			cout<<"is_ctrl ="<<ui.widget->is_ctrl<<endl;
+		}
+		break;
+	default:	break;
+	}
+}
+
+
 //键盘操作
 void mainwindow::keyPressEvent(QKeyEvent *event){
 	int keyValue = event->key();
-
 
 	switch (keyValue){
 		//键盘操作：物体模型
@@ -88,6 +103,15 @@ void mainwindow::keyPressEvent(QKeyEvent *event){
 				ui.widget->is_view_mode_ = false;
 			}
 			cout<<"is_view_mode_ ="<<ui.widget->is_view_mode_<<endl;
+		}
+		break;
+
+
+
+	case Qt::Key_Control: 
+		{
+			ui.widget->is_ctrl = true;
+			cout<<"is_ctrl ="<<ui.widget->is_ctrl<<endl;
 		}
 		break;
 	default:	break;
