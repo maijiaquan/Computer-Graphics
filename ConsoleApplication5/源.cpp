@@ -1,8 +1,9 @@
 #include "openglwindow.h"
 
 /*
-20170814 14.31
-成功读入兔子.obj
+20170814 20.09
+可以选点了，不过有bug——鼠标移动也会拖动物体旋转
+
 */
 
 int g_ratio = 5;
@@ -77,15 +78,15 @@ openglwindow::~openglwindow(){ }
 
 //定时器函数
 void openglwindow::timerEvent(QTimerEvent *t){//定时器时间
-	g_camera.printCamereInfo();
-	g_model.printModelInfo();
+	//g_camera.printCamereInfo();
+	//g_model.printModelInfo();
 
-	cout<<"cal dis = "<<calculateDistance(g_model.world_position_.x_,
-		g_model.world_position_.y_,
-		g_model.world_position_.z_,
-		g_camera.world_position_.x_,
-		g_camera.world_position_.y_,
-		g_camera.world_position_.z_)<<endl;
+	//cout<<"cal dis = "<<calculateDistance(g_model.world_position_.x_,
+	//	g_model.world_position_.y_,
+	//	g_model.world_position_.z_,
+	//	g_camera.world_position_.x_,
+	//	g_camera.world_position_.y_,
+	//	g_camera.world_position_.z_)<<endl;
 	//g_objdata.printObj();
 
 	//drag_theta_x_ = 0.1;
@@ -106,11 +107,13 @@ void openglwindow::mouseMoveEvent(QMouseEvent *e){
 	if(g_is_mouse_press){
 		update();
 	}
-	cout<<"mouse curr x = "<<g_mouse_curr_x<<"		mouse curr y = "<<g_mouse_curr_y<<endl;
-	cout<<"mouse change x = "<<mouse_change_x<<"mouse change y = "<<mouse_change_y<<endl;
+	//cout<<"mouse curr x = "<<g_mouse_curr_x<<"		mouse curr y = "<<g_mouse_curr_y<<endl;
+	//cout<<"mouse change x = "<<mouse_change_x<<"mouse change y = "<<mouse_change_y<<endl;
 
 	drag_theta_x_ =  -mouse_change_x;
 	drag_theta_y_ = mouse_change_y;
+
+	update();
 
 }
 
@@ -122,6 +125,9 @@ void openglwindow::mousePressEvent(QMouseEvent *event){
 		g_mouse_start_press_y = event->y();
 		g_is_mouse_press = true;
 	}
+	cout<<"mouse curr x = "<<g_mouse_curr_x<<"		mouse curr y = "<<g_mouse_curr_y<<endl;
+	//cout<<"mouse change x = "<<mouse_change_x<<"mouse change y = "<<mouse_change_y<<endl;
+
 	update();
 }
 
@@ -267,8 +273,9 @@ void openglwindow::initCube(){
 	//g_objdata.setPath("D:\\PolyDataWriter.obj");
 
 	//g_objdata.setPath("D:\\bunny.obj");
-	g_objdata.setPath("F:\\source_code\\obj\\cube2.obj");
+	//g_objdata.setPath("F:\\source_code\\obj\\cube2.obj");
 	//g_objdata.setPath("F:\\source_code\\obj\\wateringcan.obj");
+	g_objdata.setPath("F:\\source_code\\obj\\hello.obj");
 
 	//dodecahedron.obj
 
@@ -456,6 +463,28 @@ void openglwindow::drawCube(){
 		is_view_mode_ = true;
 	}
 
+	
+		int selected_vertex_index = 0;
+	for (int i=0; i<g_model.trans_vertexes_.size(); ++i){
+		if(
+			(
+			(g_mouse_curr_x >= (g_model.trans_vertexes_[i].x_ - 1)) 
+			&&
+			(g_mouse_curr_x <= (g_model.trans_vertexes_[i].x_ + 1)) 
+			)
+
+			&& 	
+			(
+			(g_mouse_curr_y >= (g_model.trans_vertexes_[i].y_ -1))
+			&&
+			(g_mouse_curr_y <= (g_model.trans_vertexes_[i].y_ + 1))
+			)
+			){
+			selected_vertex_index = i;
+			cout<<"selected_vertex_index  = "<<selected_vertex_index <<endl;
+		}
+		//cout<<" "<<i<<" x = "<<g_model.trans_vertexes_[i].x_<<" y = "<<g_model.trans_vertexes_[i].y_<<endl;
+	}
 	
 }
 
