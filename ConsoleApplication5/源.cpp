@@ -87,6 +87,9 @@ void openglwindow::timerEvent(QTimerEvent *t){//定时器时间
 		g_camera.world_position_.y_,
 		g_camera.world_position_.z_)<<endl;
 	//g_objdata.printObj();
+
+	//drag_theta_x_ = 0.1;
+	//update();
 }
 
 //鼠标事件：移动
@@ -260,7 +263,15 @@ void openglwindow::paintGL(){
 
 //初始化立方体
 void openglwindow::initCube(){
-	g_objdata.setPath("D:\\bunny.obj");
+	//g_objdata.setPath("D:\\cube.obj");
+	//g_objdata.setPath("D:\\PolyDataWriter.obj");
+
+	//g_objdata.setPath("D:\\bunny.obj");
+	g_objdata.setPath("F:\\source_code\\obj\\cube2.obj");
+	//g_objdata.setPath("F:\\source_code\\obj\\wateringcan.obj");
+
+	//dodecahedron.obj
+
 	g_objdata.readObjFile();
 
 	int cube_vertex[24][3] = { 
@@ -302,7 +313,7 @@ void openglwindow::initCube(){
 	int index2 = 0;
 	for (auto &v : g_model.local_vertexes_){  //遍历model的 所有局部坐标 顶点
 		v = v * matrix;     //【旋转】
-		g_model.trans_vertexes_[index2] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
+		g_model.trans_vertexes_[index2++] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
 		//g_model.trans_vertexes_[index2++].normal_ = v.normal_;   //法线有什么用？？？
 
 		//cout<<"v1 x = "<<g_model.trans_vertexes_[index2].x_<<" v1 y = "<<g_model.trans_vertexes_[index2].y_<<endl;
@@ -444,6 +455,8 @@ void openglwindow::drawCube(){
 	if(is_view_mode_ == false){
 		is_view_mode_ = true;
 	}
+
+	
 }
 
 void openglwindow::drawWireframeModel(Model & model){
