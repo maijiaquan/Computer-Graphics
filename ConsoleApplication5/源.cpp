@@ -45,6 +45,7 @@ struct CameraTransAttribute{
 }g_camera_altered;
 
 
+ObjData g_objdata("D:\\cube.obj");
 
 //构造函数初始化
 openglwindow::openglwindow(QWidget *parent)
@@ -77,6 +78,7 @@ openglwindow::openglwindow(QWidget *parent)
 	startTimer(1000);    //设置间隔时间为1000ms，该函数返回值为1
 	//startTimer(3000);  //如果有多个定时器，第几个定时器的返回值就是几
 	save_matrix.identify();    //初始化 保存矩阵
+	g_objdata.readObjFile();
 }
 
 openglwindow::~openglwindow(){ }
@@ -275,12 +277,19 @@ void openglwindow::initCube(){
 	};
 
 
+	//取消原来的硬编码读入
 	for (int i=0; i<24; ++i){   //遍历所有顶点
 		Vector3 v(cube_vertex[i][0],cube_vertex[i][1],cube_vertex[i][2]);
 		g_model.local_vertexes_.push_back(v);            //将所有顶点 保存至model的 局部坐标
 		g_model.trans_vertexes_.push_back(v+g_model.world_position_); //将所有顶点 保存至model的 透视坐标，----------trans_vertexes_ = 局部坐标 + 世界坐标
 		//g_model.save_vertexes_.push_back(v+g_model.world_position_); //新增保存变量
 	}
+	////换成obj文件读入
+	//for (auto &v : g_objdata.obj_vertexes_){   //遍历所有顶点
+	//	g_model.local_vertexes_.push_back(v);            //将所有顶点 保存至model的 局部坐标
+	//	g_model.trans_vertexes_.push_back(v+g_model.world_position_); //将所有顶点 保存至model的 透视坐标，----------trans_vertexes_ = 局部坐标 + 世界坐标
+	//}
+
 
 	// 模型空间旋转
 	//note:定义旋转矩阵，分三个坐标轴
@@ -299,11 +308,11 @@ void openglwindow::initCube(){
 		g_model.trans_vertexes_[index2] = v + g_model.world_position_;  //---------------------------trans_vertexes_ = 局部坐标 + 世界坐标
 		//g_model.trans_vertexes_[index2++].normal_ = v.normal_;   //法线有什么用？？？
 
-
 		//cout<<"v1 x = "<<g_model.trans_vertexes_[index2].x_<<" v1 y = "<<g_model.trans_vertexes_[index2].y_<<endl;
 		//这一步透视坐标正常
 	}
-
+	
+	//取消原来的硬编码读入
 	g_model.poly_indices_.push_back(TrangleIndex(0,1,2));
 	g_model.poly_indices_.push_back(TrangleIndex(2,3,0));  //front
 	g_model.poly_indices_.push_back(TrangleIndex(4,5,6));
@@ -316,6 +325,10 @@ void openglwindow::initCube(){
 	g_model.poly_indices_.push_back(TrangleIndex(18,19,16));  //top
 	g_model.poly_indices_.push_back(TrangleIndex(20,21,22));
 	g_model.poly_indices_.push_back(TrangleIndex(22,23,20));  //button
+
+	//for(auto &f : g_objdata.obj_triangles){
+	//	g_model.poly_indices_.push_back(TrangleIndex(f.indices[0], f.indices[1], f.indices[2]));
+	//}
 }
 
 

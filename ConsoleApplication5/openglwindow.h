@@ -11,10 +11,11 @@
 //#include<QKeyEvent>
 //#include <Windows.h>
 
+#include "objdata.h"
 #include "Model.h"
 #include "Camera.h"
 #include "Math.h"
-
+#include <string>
 using namespace std;
 
 #define MAX_CHAR       128
@@ -93,9 +94,6 @@ public:
 
 	//所有变换属性初始化
 	void transform_attribute_init();
-	
-	
-	
 	void changeAttribute();
 
 private:
@@ -105,7 +103,5 @@ private:
 protected:
     void timerEvent(QTimerEvent *event);
 };
-
-
 
 #endif // OPENGLWINDOW_H
