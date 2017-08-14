@@ -1,16 +1,8 @@
 #include "openglwindow.h"
 
 /*
-20170813 16.33
-新算法与 物体的【旋转】、【缩放】、【平移】相结合
-原理：引入保存矩阵
-
-主要修改：
-1. 定义该矩阵
-2. 在合适的地方初始化 该矩阵 ——openglwindow的构造函数
-3. 重载 camera的旋转 和 平移函数，把保存矩阵 传进去再带出来
-4. 将原始函数修改成重载后的版本
-5.在 “他妈的” 那里，再乘上 保存矩阵
+20170814 14.31
+成功读入兔子.obj
 */
 
 int g_ratio = 5;
@@ -44,8 +36,9 @@ struct CameraTransAttribute{
 	float rotateZ;
 }g_camera_altered;
 
+ObjData g_objdata;
 
-ObjData g_objdata("D:\\cube.obj");
+//ObjData g_objdata("E:\\bunny.obj");
 
 //构造函数初始化
 openglwindow::openglwindow(QWidget *parent)
@@ -78,7 +71,6 @@ openglwindow::openglwindow(QWidget *parent)
 	startTimer(1000);    //设置间隔时间为1000ms，该函数返回值为1
 	//startTimer(3000);  //如果有多个定时器，第几个定时器的返回值就是几
 	save_matrix.identify();    //初始化 保存矩阵
-	g_objdata.readObjFile();
 }
 
 openglwindow::~openglwindow(){ }
@@ -94,6 +86,7 @@ void openglwindow::timerEvent(QTimerEvent *t){//定时器时间
 		g_camera.world_position_.x_,
 		g_camera.world_position_.y_,
 		g_camera.world_position_.z_)<<endl;
+	//g_objdata.printObj();
 }
 
 //鼠标事件：移动
@@ -267,6 +260,9 @@ void openglwindow::paintGL(){
 
 //初始化立方体
 void openglwindow::initCube(){
+	g_objdata.setPath("D:\\bunny.obj");
+	g_objdata.readObjFile();
+
 	int cube_vertex[24][3] = { 
 		{-1,1,-1},{-1,-1,-1},{1,-1,-1},{1,1,-1},
 		{1,1,-1},{1,-1,-1},{1,-1,1},{1,1,1},
@@ -277,18 +273,19 @@ void openglwindow::initCube(){
 	};
 
 
-	//取消原来的硬编码读入
-	for (int i=0; i<24; ++i){   //遍历所有顶点
-		Vector3 v(cube_vertex[i][0],cube_vertex[i][1],cube_vertex[i][2]);
-		g_model.local_vertexes_.push_back(v);            //将所有顶点 保存至model的 局部坐标
-		g_model.trans_vertexes_.push_back(v+g_model.world_position_); //将所有顶点 保存至model的 透视坐标，----------trans_vertexes_ = 局部坐标 + 世界坐标
-		//g_model.save_vertexes_.push_back(v+g_model.world_position_); //新增保存变量
-	}
-	////换成obj文件读入
-	//for (auto &v : g_objdata.obj_vertexes_){   //遍历所有顶点
+	////取消原来的硬编码读入
+	//for (int i=0; i<24; ++i){   //遍历所有顶点
+	//	Vector3 v(cube_vertex[i][0],cube_vertex[i][1],cube_vertex[i][2]);
 	//	g_model.local_vertexes_.push_back(v);            //将所有顶点 保存至model的 局部坐标
 	//	g_model.trans_vertexes_.push_back(v+g_model.world_position_); //将所有顶点 保存至model的 透视坐标，----------trans_vertexes_ = 局部坐标 + 世界坐标
+	//	//g_model.save_vertexes_.push_back(v+g_model.world_position_); //新增保存变量
 	//}
+
+	////换成obj文件读入
+	for (auto &v : g_objdata.obj_vertexes_){   //遍历所有顶点
+		g_model.local_vertexes_.push_back(v);            //将所有顶点 保存至model的 局部坐标
+		g_model.trans_vertexes_.push_back(v+g_model.world_position_); //将所有顶点 保存至model的 透视坐标，----------trans_vertexes_ = 局部坐标 + 世界坐标
+	}
 
 
 	// 模型空间旋转
@@ -313,22 +310,22 @@ void openglwindow::initCube(){
 	}
 	
 	//取消原来的硬编码读入
-	g_model.poly_indices_.push_back(TrangleIndex(0,1,2));
-	g_model.poly_indices_.push_back(TrangleIndex(2,3,0));  //front
-	g_model.poly_indices_.push_back(TrangleIndex(4,5,6));
-	g_model.poly_indices_.push_back(TrangleIndex(6,7,4));  //right
-	g_model.poly_indices_.push_back(TrangleIndex(8,9,10));
-	g_model.poly_indices_.push_back(TrangleIndex(10,11,8));  //back
-	g_model.poly_indices_.push_back(TrangleIndex(12,13,14));
-	g_model.poly_indices_.push_back(TrangleIndex(14,15,12));  //left
-	g_model.poly_indices_.push_back(TrangleIndex(16,17,18));
-	g_model.poly_indices_.push_back(TrangleIndex(18,19,16));  //top
-	g_model.poly_indices_.push_back(TrangleIndex(20,21,22));
-	g_model.poly_indices_.push_back(TrangleIndex(22,23,20));  //button
+	//g_model.poly_indices_.push_back(TrangleIndex(0,1,2));
+	//g_model.poly_indices_.push_back(TrangleIndex(2,3,0));  //front
+	//g_model.poly_indices_.push_back(TrangleIndex(4,5,6));
+	//g_model.poly_indices_.push_back(TrangleIndex(6,7,4));  //right
+	//g_model.poly_indices_.push_back(TrangleIndex(8,9,10));
+	//g_model.poly_indices_.push_back(TrangleIndex(10,11,8));  //back
+	//g_model.poly_indices_.push_back(TrangleIndex(12,13,14));
+	//g_model.poly_indices_.push_back(TrangleIndex(14,15,12));  //left
+	//g_model.poly_indices_.push_back(TrangleIndex(16,17,18));
+	//g_model.poly_indices_.push_back(TrangleIndex(18,19,16));  //top
+	//g_model.poly_indices_.push_back(TrangleIndex(20,21,22));
+	//g_model.poly_indices_.push_back(TrangleIndex(22,23,20));  //button
 
-	//for(auto &f : g_objdata.obj_triangles){
-	//	g_model.poly_indices_.push_back(TrangleIndex(f.indices[0], f.indices[1], f.indices[2]));
-	//}
+	for(auto &f : g_objdata.obj_triangles){
+		g_model.poly_indices_.push_back(TrangleIndex(f.indices[0] - 1, f.indices[1] - 1, f.indices[2] - 1));
+	}
 }
 
 

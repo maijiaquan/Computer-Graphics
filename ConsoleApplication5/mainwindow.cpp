@@ -37,9 +37,10 @@ void mainwindow::keyPressEvent(QKeyEvent *event){
 
 	switch (keyValue){
 		//键盘操作：物体模型
-	case Qt::Key_Up:	ui.widget->model_move_z = 0.1f;	break;  //平移物体
-	case Qt::Key_Down:	ui.widget->model_move_z = -0.1f;	break;
-
+	//case Qt::Key_Up:	ui.widget->model_move_z = 0.1f;	break;  //平移物体
+	//case Qt::Key_Down:	ui.widget->model_move_z = -0.1f;	break;
+	case Qt::Key_Up:	ui.widget->model_move_z = 50;	break;  //平移物体
+	case Qt::Key_Down:	ui.widget->model_move_z = -50;	break;
 	case Qt::Key_Left:	ui.widget->model_rotate_theta = 1.0f;	break; 		//旋转物体
 	case Qt::Key_Right:	ui.widget->model_rotate_theta = -1.0f;	break;    //3.5
 
