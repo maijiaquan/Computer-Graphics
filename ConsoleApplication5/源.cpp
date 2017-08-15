@@ -21,7 +21,10 @@ int g_mouse_last_y = 0;
 bool g_is_mouse_press = false;
 
 Camera &g_camera = Camera::instance();
-Model g_model(Vector3(0,0,g_camera.dis_camera_model_)); 
+Model g_model(Vector3(0,0,g_camera.dis_camera_model_));
+
+
+int g_selected_vertex_index = 0;
 
 
 struct ModelTransAttribute{
@@ -95,6 +98,9 @@ void openglwindow::timerEvent(QTimerEvent *t){//定时器时间
 
 //鼠标事件：移动
 void openglwindow::mouseMoveEvent(QMouseEvent *e){
+	cout<<"index.x = "<<g_model.trans_vertexes_[g_selected_vertex_index].x_ - windowWidth_/2<<" y = "<<windowHeight_/2-g_model.trans_vertexes_[g_selected_vertex_index].y_<<endl;
+	//glVertex2f(x2 - windowWidth_/2, -y2 + windowHeight_/2); 
+	//
 	g_mouse_curr_x = e->x();
 	g_mouse_curr_y = e->y();
 
@@ -104,16 +110,88 @@ void openglwindow::mouseMoveEvent(QMouseEvent *e){
 
 	g_mouse_last_x = g_mouse_curr_x;
 	g_mouse_last_y = g_mouse_curr_y;
-	if(g_is_mouse_press){
-		update();
-	}
+
 	//cout<<"mouse curr x = "<<g_mouse_curr_x<<"		mouse curr y = "<<g_mouse_curr_y<<endl;
 	//cout<<"mouse change x = "<<mouse_change_x<<"mouse change y = "<<mouse_change_y<<endl;
 
 	drag_theta_x_ =  -mouse_change_x;
 	drag_theta_y_ = mouse_change_y;
+	if(g_is_mouse_press){
+		update();
+	}
+	//update();
+	//【选点】：遍历所有点
+	g_selected_vertex_index = 0;
+	for (int i=0; i<g_model.trans_vertexes_.size(); ++i){
+		if(
+			(
+			(g_mouse_curr_x >= (g_model.trans_vertexes_[i].x_ - 1)) 
+			&&
+			(g_mouse_curr_x <= (g_model.trans_vertexes_[i].x_ + 1)) 
+			)
 
-	update();
+			&& 	
+			(
+			(g_mouse_curr_y >= (g_model.trans_vertexes_[i].y_ -1))
+			&&
+			(g_mouse_curr_y <= (g_model.trans_vertexes_[i].y_ + 1))
+			)
+			){
+				g_selected_vertex_index = i;
+
+				////画圆
+				////glColor3f(255.0,0,0);  
+
+				//glBegin(GL_POLYGON);  
+				////	glBegin(GL_LINE_LOOP);
+				//const GLfloat R = 3.0f;  
+				//const int n = 10;  
+
+				//for (int j = 0; j < n; j++)  
+				//{  
+				//	glVertex2f(R*cos(2*PI/n*j)  , R*sin(2*PI/n*j) );    
+				//}  
+				////		cout<<"oval x = "<< R*cos(2*PI/n*j)+g_mouse_curr_x  - windowWidth_/2<< " y = "<<R*sin(2*PI/n*)+g_mouse_curr_y - windowWidth_/2<<endl;
+
+				//glEnd(); 
+
+				///////// oval ///////////////
+				glColor3f(255.0,0.0,0.0);  
+				const int n = 10;  
+				const GLfloat R = 5.0f;  
+				const GLfloat pi = 3.1415926536f;  
+
+				glBegin(GL_POLYGON);
+				for (int i = 0; i < n; i++)  
+				{  
+					//GLfloat x = R*cos(2*pi/n*i) - windowWidth_ / 2 + g_mouse_curr_x; 
+					//GLfloat y = R*sin(2*pi/n*i) + windowHeight_ / 2 - g_mouse_curr_y;
+					cout<<"index = "<<g_selected_vertex_index<<endl;
+					if(g_selected_vertex_index != 0){
+
+						//GLfloat x = R*cos(2*pi/n*i) - windowWidth_ / 2 + g_model.trans_vertexes_[g_selected_vertex_index].x_; 
+						//GLfloat y = R*sin(2*pi/n*i) + windowHeight_ / 2 - g_model.trans_vertexes_[g_selected_vertex_index].y_;
+
+//						GLfloat x = R*cos(2*pi/n*i) + g_model.trans_vertexes_[g_selected_vertex_index].x_; 
+	//					GLfloat y = R*sin(2*pi/n*i) + g_model.trans_vertexes_[g_selected_vertex_index].y_;
+						GLfloat x = R*cos(2*pi/n*i) + g_model.trans_vertexes_[g_selected_vertex_index].x_ - windowWidth_/2; 
+						GLfloat y = R*sin(2*pi/n*i) + windowHeight_/2-g_model.trans_vertexes_[g_selected_vertex_index].y_;
+												//cout<<"oval x = "<<x <<" y = "<<y<<endl;
+
+					//	cout<<"index.x = "<<g_model.trans_vertexes_[g_selected_vertex_index].x_ - windowWidth_/2<<" y = "<<windowHeight_/2-g_model.trans_vertexes_[g_selected_vertex_index].y_<<endl;
+
+						glVertex2f(x, y);     
+					}
+				}  
+
+				//cout<<"winhei = "<<windowHeight_<<" x = "<<windowWidth_<<endl;
+				glEnd();
+				///////// oval ///////////////
+
+				cout<<"g_selected_vertex_index  = "<<g_selected_vertex_index <<endl;
+		}
+		//cout<<" "<<i<<" x = "<<g_model.trans_vertexes_[i].x_<<" y = "<<g_model.trans_vertexes_[i].y_<<endl;
+	}
 
 }
 
@@ -167,7 +245,6 @@ void openglwindow::transform_attribute_init(){
 	drag_theta_x_ = 0.0f;
 	drag_theta_y_ = 0.0f;
 	drag_theta_z_ = 0.0f;
-
 }
 
 
@@ -252,18 +329,33 @@ void openglwindow::resizeGL(int w, int h){
 //////////////////////////////////////////////////////
 void openglwindow::paintGL(){  
 	glClear(GL_COLOR_BUFFER_BIT);  	//清屏  
+
+
+
+
 	glColor3f(255.0,255.0,255.0);  
+
 
 	drawCube();
 	transform_attribute_init();   //要紧跟着drawCube()
 
 	drawLine(g_mouse_start_press_x, g_mouse_start_press_y, g_mouse_curr_x, g_mouse_curr_y);
-	glBegin(GL_POINTS); //绘制点  
-	glVertex2f(0,0);  
-	glVertex2f(0.6,0.6); 
-	glEnd();  
-	glFlush();  
 
+	//glBegin(GL_POINTS); //绘制点  
+	//glVertex2f(0,0);  
+	//glVertex2f(0.6,0.6); 
+	//glEnd();  
+
+
+
+
+
+
+
+	////////
+
+
+	glFlush();  
 	//glutSwapBuffers();
 }  
 
@@ -326,7 +418,7 @@ void openglwindow::initCube(){
 		//cout<<"v1 x = "<<g_model.trans_vertexes_[index2].x_<<" v1 y = "<<g_model.trans_vertexes_[index2].y_<<endl;
 		//这一步透视坐标正常
 	}
-	
+
 	//取消原来的硬编码读入
 	//g_model.poly_indices_.push_back(TrangleIndex(0,1,2));
 	//g_model.poly_indices_.push_back(TrangleIndex(2,3,0));  //front
@@ -386,6 +478,7 @@ void openglwindow::drawCube(){
 	g_camera.look_at_theta_ = Vector3(drag_theta_x_, drag_theta_y_,drag_theta_z_);  //修改 相机 角度  加上绕着 z 轴旋转 20170813 11.44
 
 	float dx, dy, dz;
+
 
 	if(is_ctrl){    //如果是 绕z轴旋转模式的话
 		//绕z轴旋转代码   20170813  11.45
@@ -463,29 +556,32 @@ void openglwindow::drawCube(){
 		is_view_mode_ = true;
 	}
 
-	
-		int selected_vertex_index = 0;
-	for (int i=0; i<g_model.trans_vertexes_.size(); ++i){
-		if(
-			(
-			(g_mouse_curr_x >= (g_model.trans_vertexes_[i].x_ - 1)) 
-			&&
-			(g_mouse_curr_x <= (g_model.trans_vertexes_[i].x_ + 1)) 
-			)
 
-			&& 	
-			(
-			(g_mouse_curr_y >= (g_model.trans_vertexes_[i].y_ -1))
-			&&
-			(g_mouse_curr_y <= (g_model.trans_vertexes_[i].y_ + 1))
-			)
-			){
-			selected_vertex_index = i;
-			cout<<"selected_vertex_index  = "<<selected_vertex_index <<endl;
-		}
-		//cout<<" "<<i<<" x = "<<g_model.trans_vertexes_[i].x_<<" y = "<<g_model.trans_vertexes_[i].y_<<endl;
-	}
-	
+	////【选点】：遍历所有点
+	//int g_selected_vertex_index = 0;
+	//for (int i=0; i<g_model.trans_vertexes_.size(); ++i){
+	//	if(
+	//		(
+	//		(g_mouse_curr_x >= (g_model.trans_vertexes_[i].x_ - 1)) 
+	//		&&
+	//		(g_mouse_curr_x <= (g_model.trans_vertexes_[i].x_ + 1)) 
+	//		)
+
+	//		&& 	
+	//		(
+	//		(g_mouse_curr_y >= (g_model.trans_vertexes_[i].y_ -1))
+	//		&&
+	//		(g_mouse_curr_y <= (g_model.trans_vertexes_[i].y_ + 1))
+	//		)
+	//		){
+	//			g_selected_vertex_index = i;
+	//			cout<<"g_selected_vertex_index  = "<<g_selected_vertex_index <<endl;
+	//	}
+	//	//cout<<" "<<i<<" x = "<<g_model.trans_vertexes_[i].x_<<" y = "<<g_model.trans_vertexes_[i].y_<<endl;
+	//}
+
+
+
 }
 
 void openglwindow::drawWireframeModel(Model & model){
@@ -498,7 +594,6 @@ void openglwindow::drawWireframeModel(Model & model){
 
 		//画出三角形的三条边
 		drawLine(v1.x_,v1.y_,v2.x_,v2.y_);
-
 		drawLine(v3.x_,v3.y_,v2.x_,v2.y_);
 		drawLine(v1.x_,v1.y_,v3.x_,v3.y_);
 		//cout<<"v1 x = "<<v1.x_<<" v1 y = "<< v1.y_<<endl;
