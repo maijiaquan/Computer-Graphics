@@ -6,6 +6,7 @@
 
 */
 
+
 int g_ratio = 5;
 int g_translation = 17;
 
